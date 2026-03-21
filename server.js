@@ -525,7 +525,7 @@ app.get('/api/liveblog', async (req, res) => {
 // REST fallback
 app.get('/api/alerts', (req, res) => res.json(currentAlerts));
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🛡️  שרת התראות פיקוד העורף פועל על http://localhost:${PORT}`);
   console.log(`   SSE streaming | Polling every 3s | Geocode with polygons`);
 });
