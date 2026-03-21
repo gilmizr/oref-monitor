@@ -912,11 +912,4 @@ function updFavicon(){
 // Flash title during alerts
 setInterval(()=>{if(document.body.getAttribute('data-alert')==='danger')document.title=document.title.startsWith('🔴')?'OREF MONITOR':'🔴 אזעקה!'},1000);
 
-// ══ SLEEP MODE — dims at night ══
-function checkSleepMode(){
-  const h=new Date().getHours();
-  const isSleep=h>=0&&h<6;
-  document.body.classList.toggle('sleep-mode',isSleep);
-}
-checkSleepMode();
-setInterval(checkSleepMode,60000);
+/* sleep mode removed */

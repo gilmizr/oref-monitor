@@ -297,16 +297,7 @@ body{font-family:var(--f);background:var(--brd);color:var(--t1);-webkit-font-smo
 .tb-toggle.active{color:#000;background:var(--grn);border-color:var(--grn)}
 .tb-toggle.active::before{content:'●';font-size:10px}
 
-/* ══ SLEEP MODE (00:00-06:00) ══ */
-.sleep-mode{filter:brightness(0.5)}
-.sleep-mode .c-clkwx{filter:brightness(2)}
-.sleep-mode .c-news,.sleep-mode .c-stats,.sleep-mode .c-zones{opacity:.3}
-.sleep-mode .c-alerts,.sleep-mode .c-hist{opacity:.5}
-.sleep-mode .c-clkwx .ck-big{font-size:clamp(64px,8vw,100px)!important}
-
-/* alerts override sleep dimming */
-.sleep-mode[data-alert="danger"]{filter:brightness(0.8)}
-.sleep-mode[data-alert="warning"]{filter:brightness(0.7)}
+/* sleep mode removed */
 
 @media(max-width:900px){
   .grid{grid-template-columns:1fr;grid-template-rows:32px auto 1fr auto 1fr 40px;

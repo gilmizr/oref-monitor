@@ -1,4 +1,4 @@
-const CACHE = 'oref-v28';
+const CACHE = 'oref-v29';
 const STATIC = ['/', '/style.css', '/app.js'];
 
 self.addEventListener('install', e => {
