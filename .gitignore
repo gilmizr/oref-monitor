@@ -1,0 +1,6 @@
+node_modules/
+geocode-cache.json
+alert-history.json
+.pm2/
+*.log
+.DS_Store

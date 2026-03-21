@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OREF MONITOR</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="OREF Monitor">
+  <link rel="apple-touch-icon" href="/icon-192.svg">
+  <link rel="icon" id="favicon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body data-alert="none">
+
+<!-- FULL SCREEN SHELTER ALERT (hidden by default) -->
+<div class="shelter-overlay" id="shelterOv">
+  <div class="shelter-inner">
+    <div class="shelter-title">היכנסו למרחב המוגן</div>
+    <div class="shelter-countdown" id="shelterCount">--</div>
+    <div class="shelter-sub" id="shelterSub">שניות</div>
+    <div class="shelter-zones" id="shelterZones"></div>
+    <div class="shelter-instructions">שכבו על הרצפה · הגנו על הראש · התרחקו מחלונות</div>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- TOP BAR -->
+  <div class="p c-top">
+    <div class="tb-s">
+      <span class="tb-label">OREF MONITOR</span>
+      <span class="dot" id="dot"></span>
+      <span class="tb-sub">UP <span id="uptime">0:00</span></span>
+      <span class="tb-sep">│</span>
+      <span class="tb-sub" id="upd">--:--</span>
+    </div>
+    <div class="tb-s">
+      <span class="alert-badge" id="alertBadge" data-n="0">0</span>
+      <span class="tb-sep">│</span>
+      <button class="tb-toggle" id="filterToggle" title="הצג רק אזורים נבחרים">סינון</button>
+      <span class="tb-sep">│</span>
+      <button class="tb-btn" id="soundBtn">🔔</button>
+      <button class="tb-btn" id="themeBtn">◐</button>
+      <button class="tb-btn" id="setBtn">⚙</button>
+    </div>
+  </div>
+
+  <!-- CLOCK + WEATHER -->
+  <div class="p c-clkwx" id="clockCard">
+    <div class="ck-big" id="ckBig">00:00:00</div>
+    <div class="ck-date" id="ckDate"></div>
+    <div class="ck-wx"><span id="wxI2">--</span> <span id="wxT2">--°</span> <span id="wxD2"></span></div>
+  </div>
+
+  <!-- STATS -->
+  <div class="p c-stats">
+    <div class="stat-grid">
+      <div class="stat-box stat-wide">
+        <div class="stat-num stat-threat" id="threatVal">--%</div>
+        <div class="stat-lbl">סיכוי ירי טילים</div>
+        <div class="threat-bar"><div class="threat-fill" id="threatFill"></div></div>
+        <div class="threat-hint" id="threatHint"></div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num stat-war" id="warShelter">--</div>
+        <div class="stat-lbl">שעות בממ״ד (מלחמה)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num stat-war" id="warAlerts">--</div>
+        <div class="stat-lbl">אזעקות (מלחמה)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statTotal">0</div>
+        <div class="stat-lbl">סה״כ היום</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statHour">0</div>
+        <div class="stat-lbl">שעה אחרונה</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statPeakHour">--</div>
+        <div class="stat-lbl">שעה חמה</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statPerDay">--</div>
+        <div class="stat-lbl">ממוצע/יום</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statPeakDay">--</div>
+        <div class="stat-lbl">יום חם</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statQuiet">--</div>
+        <div class="stat-lbl">שקט מקס׳ (שע)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statDist">--</div>
+        <div class="stat-lbl">מרחק קרוב</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statPeak">--</div>
+        <div class="stat-lbl">אזור חם</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statDays">--</div>
+        <div class="stat-lbl">ימים עם התראות</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statToday">0</div>
+        <div class="stat-lbl">היום</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div class="p c-map">
+    <div id="map"></div>
+    <div class="aov" id="aov"></div>
+    <div class="m-legend">
+      <span class="lg lg-r">RED</span>
+      <span class="lg lg-y">YEL</span>
+      <span class="lg lg-g">GRN</span>
+      <span class="lg lg-b">MON</span>
+    </div>
+  </div>
+
+  <!-- TIMELINE (unified alerts + history) -->
+  <div class="p c-tl">
+    <div class="p-label">התראות</div>
+    <div class="scr" id="timeline"><div class="mt">LOADING...</div></div>
+  </div>
+
+
+  <!-- TICKER -->
+  <div class="p c-tk">
+    <div class="tk-tag">LIVE</div>
+    <div class="tk-area"><div class="tk-tr" id="tkTr"><span class="tk-i">LOADING...</span></div></div>
+  </div>
+
+</div>
+
+<!-- SETTINGS -->
+<div class="ov" id="ov">
+  <div class="mdl">
+    <div class="mdl-h"><span>הגדרות</span><button class="tb-btn" id="closeSet">✕</button></div>
+    <div class="tbs">
+      <button class="tb active" data-tab="myzone">האזור שלי</button>
+      <button class="tb" data-tab="watch">אזורים נוספים</button>
+      <button class="tb" data-tab="prefs">העדפות</button>
+    </div>
+    <div class="tbd active" id="tab-myzone">
+      <div class="mbr"><span class="mu">משפיע על צבע, צליל, סיכוי ירי</span></div>
+      <div class="mbr"><button class="bt" id="selAll">בחר הכל</button><button class="bt" id="clrAll">נקה</button></div>
+      <div class="msc" id="zList"></div>
+      <div class="mbr" style="border-top:1px solid var(--brd);margin-top:4px"><input class="minp" id="cSrch" placeholder="חפש עיר..." autocomplete="off"></div>
+      <div class="mbr"><button class="bt" id="clrC">נקה</button><span class="mu" id="cCnt">0</span></div>
+      <div class="msc" id="cList"><div class="mt">LOADING...</div></div>
+    </div>
+    <div class="tbd" id="tab-watch">
+      <div class="mbr"><span class="mu">מוצגים בציר הזמן כשסינון פעיל</span></div>
+      <div class="mbr"><button class="bt" id="selAllW">בחר הכל</button><button class="bt" id="clrAllW">נקה</button></div>
+      <div class="msc" id="wList"></div>
+      <div class="mbr" style="border-top:1px solid var(--brd);margin-top:4px"><input class="minp" id="wCitySrch" placeholder="חפש עיר..." autocomplete="off"></div>
+      <div class="mbr"><button class="bt" id="clrWC">נקה ערים</button><span class="mu" id="wCityCnt">0</span></div>
+      <div class="msc" id="wCityList"></div>
+    </div>
+    <div class="tbd" id="tab-prefs">
+      <div class="prf"><label>מהירות מבזקים</label><input type="range" class="rng" id="tkSpd" min="10" max="120" value="50"><div class="rng-h"><span>FAST</span><span>SLOW</span></div></div>
+      <div class="prf">
+        <label>בדיקת תצוגה</label>
+        <div class="test-btns">
+          <button class="test-btn test-none" data-mode="none">רגיל</button>
+          <button class="test-btn test-danger" data-mode="danger">טילים</button>
+          <button class="test-btn test-warning" data-mode="warning">התראה</button>
+          <button class="test-btn test-safe" data-mode="safe">אפשר לצאת</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

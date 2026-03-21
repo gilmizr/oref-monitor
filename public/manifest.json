@@ -1,0 +1,14 @@
+{
+  "name": "OREF Monitor — מוניטור התראות",
+  "short_name": "OREF Monitor",
+  "description": "מוניטור התראות פיקוד העורף בזמן אמת",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    { "src": "/icon-192.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/icon-512.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
