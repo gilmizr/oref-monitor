@@ -237,8 +237,8 @@ async function ldWarStats(){
     if(!r.ok)return;
     const d=await r.json();
     const el=n=>document.getElementById(n);
-    if(el('warShelter'))el('warShelter').textContent=d.totalShelterHours||'--';
-    if(el('warAlerts'))el('warAlerts').textContent=d.totalAlerts||'--';
+    if(el('warShelter'))el('warShelter').textContent=d.shelterHours||'--';
+    if(el('warAlerts'))el('warAlerts').textContent=d.alerts||'--';
   }catch{}
   setTimeout(ldWarStats,600000);
 }

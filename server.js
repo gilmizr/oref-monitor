@@ -370,7 +370,11 @@ function getWarStatsForCity(data, city) {
       };
     }
   }
-  // Total across all wars
+  // Use current war (Iran2026) as primary display, fallback to latest available
+  const current = result.wars['Iran2026'] || result.wars[Object.keys(result.wars).pop()] || {};
+  result.shelterHours = current.shelterHours || '0';
+  result.alerts = current.alerts || 0;
+  // Also provide total across all wars
   let totalMs = 0, totalAlerts = 0;
   for (const w of Object.values(result.wars)) { totalMs += parseFloat(w.shelterHours) * 3600000; totalAlerts += w.alerts; }
   result.totalShelterHours = (totalMs / 3600000).toFixed(1);
