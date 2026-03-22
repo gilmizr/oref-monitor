@@ -597,11 +597,16 @@ async function updAlertLayers(al){
   for(const nm of activeNames){
     if(S.alertLayers[nm]||S.cL[nm])continue;
     const g=await fGeo(nm);if(!g)continue;
-    // Only show on map if we have a real polygon — point geocodes are unreliable
-    if(!isRealPoly(g.geojson))continue;
     const st=S.caS[nm]||'danger';
     const s=cSt(st);
-    const l=L.geoJSON(g.geojson,{style:()=>s,interactive:false});
+    let l;
+    if(isRealPoly(g.geojson)){
+      l=L.geoJSON(g.geojson,{style:()=>s,interactive:false});
+    }else{
+      // Small dot for cities without polygon — only if coordinates look valid (inside Israel)
+      if(g.lat<29||g.lat>34||g.lng<34||g.lng>36)continue;// skip bad geocodes
+      l=L.circleMarker([g.lat,g.lng],{...s,radius:5,interactive:false});
+    }
     S.alertLayers[nm]=l;
     S.cMG.addLayer(l);
   }
@@ -699,18 +704,23 @@ function proc(al){
 function fndZ(nm){if(!nm)return[];let m=ZONES.filter(z=>z.name===nm||nm.includes(z.name)||z.name.includes(nm));if(m.length)return m;const aid=S.c2a[nm];if(aid!==undefined){m=ZONES.filter(z=>z.areaIds.includes(aid));if(m.length)return m};for(const z of ZONES)for(const a of z.areaIds){const d=S.dba[a];if(d&&(d.name===nm||d.cities.find(c=>(c.label_he||c.label)===nm)))return[z]};return[]}
 
 function chkU(al){
-  let hit=false,minMigun=Infinity,hitZones=[];
-  al.forEach(a=>(a.data||[]).forEach(n=>{
-    if(S.selC.has(n)){hit=true;const m=S.c2m[n];if(m!==undefined&&m<minMigun)minMigun=m;hitZones.push(n)}
-    fndZ(n).forEach(z=>{if(S.selZ.has(z.id)){hit=true;hitZones.push(n)}});
-  }));
+  let hit=false,minMigun=Infinity,hitCities=[];
+  al.forEach(a=>{
+    const isMissile=(parseInt(a.cat)||0)===1;
+    (a.data||[]).forEach(n=>{
+      // Only match selected CITIES, not entire zones
+      if(S.selC.has(n)){
+        hit=true;
+        hitCities.push(n);
+        if(isMissile){const m=S.c2m[n];if(m!==undefined&&m<minMigun)minMigun=m}
+      }
+    });
+  });
   if(hit){
-    // Sound
     if(S.sound){try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.setValueAtTime(880,c.currentTime);o.frequency.setValueAtTime(660,c.currentTime+.15);o.frequency.setValueAtTime(880,c.currentTime+.3);o.frequency.setValueAtTime(660,c.currentTime+.45);g.gain.setValueAtTime(.4,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+.6);o.start(c.currentTime);o.stop(c.currentTime+.6)}catch{}}
-    // Notification
-    if('Notification' in window&&Notification.permission==='granted')new Notification('🚨 התראה!',{body:hitZones.join(', '),tag:'oref'});
-    // Full-screen shelter countdown
-    if(minMigun<Infinity)showShelter(minMigun,hitZones.join(' · '));
+    if('Notification' in window&&Notification.permission==='granted')new Notification('🚨 התראה!',{body:hitCities.join(', '),tag:'oref'});
+    // Shelter only for missiles in MY cities
+    if(minMigun<Infinity)showShelter(minMigun,hitCities.join(' · '));
   }
 }
 
