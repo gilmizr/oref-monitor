@@ -788,7 +788,7 @@ function rndTimeline(hist){
     });
   }
 
-  if(!all.length){c.innerHTML=S.filterOn?'<div class=mt>אין התראות באזורים שנבחרו</div>':'<div class=mt>אין התראות ב-24 שעות אחרונות</div>';return}
+  if(!all.length){c.innerHTML=S.filterOn?'<div class=mt>אין התראות באזורים שנבחרו</div>':'<div class=mt>ממתין להתראות...<br><span style="font-size:10px;color:var(--t3)">היסטוריה נצברת אוטומטית</span></div>';return}
 
   // Check if area matches user's selected zones/cities
   const myZoneIds=new Set([...S.selZ,...S.watchZ]);
