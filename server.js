@@ -199,15 +199,25 @@ app.get('/api/history', async (req, res) => {
 // ============================================
 // Districts
 // ============================================
+let districtsCache = null;
+const DISTRICTS_FILE = path.join(__dirname, 'districts-cache.json');
+try { districtsCache = JSON.parse(fs.readFileSync(DISTRICTS_FILE, 'utf8')); } catch {}
+
 app.get('/api/districts', async (req, res) => {
+  // Serve from cache if available
+  if (districtsCache) {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    return res.json(districtsCache);
+  }
   try {
     const response = await fetch('https://www.oref.org.il/districts/districts_heb.json', {
       headers: { 'Referer': 'https://www.oref.org.il/', 'Accept': 'application/json' },
     });
-    const text = await response.text();
+    const data = await response.json();
+    districtsCache = data;
+    try { fs.writeFileSync(DISTRICTS_FILE, JSON.stringify(data)); } catch {}
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.send(text);
+    res.json(data);
   } catch (err) {
     res.status(502).json({ error: 'Failed to fetch districts' });
   }
