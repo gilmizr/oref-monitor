@@ -786,12 +786,8 @@ function rndTimeline(hist){
   }
   function groupHasMine(g){return g.areas.some(a=>isMine(a))}
 
-  // Sort: my zones first, then by time
-  all.sort((a,b)=>{
-    const am=groupHasMine(a)?1:0, bm=groupHasMine(b)?1:0;
-    if(am!==bm)return bm-am;// mine first
-    return b.ts-a.ts;// then by time
-  });
+  // Always chronological — newest first
+  all.sort((a,b)=>b.ts-a.ts);
 
   c.innerHTML='';
   all.forEach(g=>{
