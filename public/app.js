@@ -489,9 +489,13 @@ function ldSv(){try{JSON.parse(localStorage.getItem('oz'))?.forEach(id=>{S.selZ.
 // ── Alert tint ──
 function setTint(){
   if(S.testMode){document.body.setAttribute('data-alert',S.testMode);updFavicon();return}
-  // Tint only based on selected CITIES, not zones
+  // Check selected cities first (strongest signal)
   let w=null;
   S.selC.forEach(n=>{const s=S.caS[n];if(s==='danger')w='danger';else if(s==='warning'&&w!=='danger')w='warning';else if(s==='safe'&&!w)w='safe'});
+  // If no selected city alert, check if ANY alert is active anywhere
+  if(!w&&S.al.length>0){
+    S.al.forEach(a=>{const cat=parseInt(a.cat)||0;if(cat===1)w='danger';else if(!w||w==='safe')w='warning'});
+  }
   document.body.setAttribute('data-alert',w||'none');
   updFavicon();
 }
