@@ -794,9 +794,9 @@ function rndTimeline(hist){
     const t=g.cat===1?'danger':g.cat===13?'safe':'warning';
     const el=document.createElement('div');el.className='hi-group'+(g.live?' hi-live':'');
 
-    // Sort chips: my zone first, then watch zones, then rest
-    const myMain=g.areas.filter(a=>S.selC.has(a)||fndZ(a).some(z=>S.selZ.has(z.id)));
-    const myWatch=g.areas.filter(a=>!myMain.includes(a)&&(S.watchC.has(a)||fndZ(a).some(z=>S.watchZ.has(z.id))));
+    // Sort chips: my cities first, then watch cities, then rest
+    const myMain=g.areas.filter(a=>S.selC.has(a));
+    const myWatch=g.areas.filter(a=>!myMain.includes(a)&&S.watchC.has(a));
     const rest=g.areas.filter(a=>!myMain.includes(a)&&!myWatch.includes(a));
     const sorted=[...myMain,...myWatch,...rest];
 
