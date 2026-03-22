@@ -680,7 +680,7 @@ function proc(al){
   Object.keys(pC).forEach(n=>{if(pC[n]&&pC[n]!=='safe'&&!S.caS[n]){S.caS[n]='safe';setTimeout(()=>{if(S.caS[n]==='safe'){S.caS[n]=null;uCS();setTint()}},30000)}});
 
   ZONES.forEach(z=>{stZ(z.id);const d=document.getElementById(`zs-${z.id}`);if(d){const st=S.zaS[z.id];d.style.background=st==='danger'?'#ff0040':st==='warning'?'#ffaa00':st==='safe'?'#00ff41':''}});
-  uCS();updAlertLayers(effectiveAl);if(S.histRaw.length||Object.keys(S.alertBuffer||{}).length)rndTimeline(S.histRaw);updOv();setTint();
+  uCS();updAlertLayers(al);if(S.histRaw.length||Object.keys(S.alertBuffer||{}).length)rndTimeline(S.histRaw);updOv();setTint();
   document.getElementById('upd').textContent=new Date().toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 
   // Alert badge — count from effective list (includes buffered)
