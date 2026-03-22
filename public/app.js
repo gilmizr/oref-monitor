@@ -796,18 +796,18 @@ function rndTimeline(hist){
   c.innerHTML='';
   all.forEach(g=>{
     const t=g.cat===1?'danger':g.cat===13?'safe':'warning';
-    const hasMine=groupHasMine(g);
-    const el=document.createElement('div');el.className='hi-group'+(g.live?' hi-live':'')+(hasMine?' hi-mine':'');
+    const el=document.createElement('div');el.className='hi-group'+(g.live?' hi-live':'');
 
-    // Put matching areas first in chips, highlight them
-    const myAreas=g.areas.filter(a=>isMine(a));
-    const otherAreas=g.areas.filter(a=>!isMine(a));
-    const sorted=[...myAreas,...otherAreas];
+    // Sort chips: my zone first, then watch zones, then rest
+    const myMain=g.areas.filter(a=>S.selC.has(a)||fndZ(a).some(z=>S.selZ.has(z.id)));
+    const myWatch=g.areas.filter(a=>!myMain.includes(a)&&(S.watchC.has(a)||fndZ(a).some(z=>S.watchZ.has(z.id))));
+    const rest=g.areas.filter(a=>!myMain.includes(a)&&!myWatch.includes(a));
+    const sorted=[...myMain,...myWatch,...rest];
 
     const MAX=5;
     const visible=sorted.slice(0,MAX);
     const hidden=sorted.slice(MAX);
-    const chipHtml=a=>`<span class="hi-chip${isMine(a)?' hi-chip-mine':''}">${esc(a)}</span>`;
+    const chipHtml=a=>`<span class="hi-chip">${esc(a)}</span>`;
     const visChips=visible.map(chipHtml).join('');
     const hidChips=hidden.map(chipHtml).join('');
 

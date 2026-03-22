@@ -190,8 +190,7 @@ body{font-family:var(--f);background:var(--brd);color:var(--t1);-webkit-font-smo
 .hi-hidden{display:none;margin-top:3px}
 .hi-hidden.show{display:flex;flex-wrap:wrap;gap:3px}
 .hi-live{border-right-width:4px!important;background:rgba(255,0,64,.03)}
-.hi-mine{border-left:2px solid var(--acc)}
-.hi-chip-mine{border-color:var(--acc)!important;color:var(--acc)!important;font-weight:700}
+/* all chips same style — selected zones just appear first */
 .hi-foot{font-size:11px;color:var(--t3);margin-top:4px;display:flex;align-items:center;gap:8px}
 .hd{width:6px;height:6px;margin-top:4px;flex-shrink:0}
 .hd.danger{background:var(--red)}.hd.warning{background:var(--yel)}.hd.safe{background:var(--grn)}
