@@ -489,7 +489,10 @@ function ldSv(){try{JSON.parse(localStorage.getItem('oz'))?.forEach(id=>{S.selZ.
 // ── Alert tint ──
 function setTint(){
   if(S.testMode){document.body.setAttribute('data-alert',S.testMode);updFavicon();return}
-  let w=null;S.selZ.forEach(id=>{const s=S.zaS[id];if(s==='danger')w='danger';else if(s==='warning'&&w!=='danger')w='warning';else if(s==='safe'&&!w)w='safe'});S.selC.forEach(n=>{const s=S.caS[n];if(s==='danger')w='danger';else if(s==='warning'&&w!=='danger')w='warning';else if(s==='safe'&&!w)w='safe'});document.body.setAttribute('data-alert',w||'none');
+  // Tint only based on selected CITIES, not zones
+  let w=null;
+  S.selC.forEach(n=>{const s=S.caS[n];if(s==='danger')w='danger';else if(s==='warning'&&w!=='danger')w='warning';else if(s==='safe'&&!w)w='safe'});
+  document.body.setAttribute('data-alert',w||'none');
   updFavicon();
 }
 
