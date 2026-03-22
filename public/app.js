@@ -547,15 +547,10 @@ function isRealPoly(gj){
 async function addCL(nm){
   if(S.cL[nm])return;
   const g=await fGeo(nm);if(!g){S.cL[nm]=true;return}
-  // Subtle outline for selected city — no fill, just dashed border
-  let l;
-  if(isRealPoly(g.geojson)){
-    l=L.geoJSON(g.geojson,{style:()=>({color:'#444',fillColor:'transparent',fillOpacity:0,weight:1,dashArray:'3,5',opacity:.4}),interactive:true,bubblingMouseEvents:true});
-    l.bindTooltip(nm,{permanent:false,direction:'center',className:'zone-tooltip',sticky:true});
-  }else{
-    l=L.circleMarker([g.lat,g.lng],{color:'#444',fillColor:'#444',fillOpacity:.08,weight:1,radius:6,opacity:.4,interactive:true,bubblingMouseEvents:true});
-    l.bindTooltip(nm,{permanent:false,direction:'top',className:'zone-tooltip',offset:[0,-4]});
-  }
+  // Only show on map if real polygon — point geocodes are unreliable for small villages
+  if(!isRealPoly(g.geojson)){S.cL[nm]=true;return}
+  const l=L.geoJSON(g.geojson,{style:()=>({color:'#444',fillColor:'transparent',fillOpacity:0,weight:1,dashArray:'3,5',opacity:.4}),interactive:true,bubblingMouseEvents:true});
+  l.bindTooltip(nm,{permanent:false,direction:'center',className:'zone-tooltip',sticky:true});
   S.cL[nm]=l;
   S.cMG.addLayer(l);
 }
@@ -602,14 +597,11 @@ async function updAlertLayers(al){
   for(const nm of activeNames){
     if(S.alertLayers[nm]||S.cL[nm])continue;
     const g=await fGeo(nm);if(!g)continue;
+    // Only show on map if we have a real polygon — point geocodes are unreliable
+    if(!isRealPoly(g.geojson))continue;
     const st=S.caS[nm]||'danger';
     const s=cSt(st);
-    let l;
-    if(isRealPoly(g.geojson)){
-      l=L.geoJSON(g.geojson,{style:()=>s,interactive:false});
-    }else{
-      l=L.circleMarker([g.lat,g.lng],{...s,radius:8,interactive:false});
-    }
+    const l=L.geoJSON(g.geojson,{style:()=>s,interactive:false});
     S.alertLayers[nm]=l;
     S.cMG.addLayer(l);
   }
