@@ -786,18 +786,40 @@ function rndTimeline(hist){
 
   if(!all.length){c.innerHTML=S.filterOn?'<div class=mt>אין התראות באזורים שנבחרו</div>':'<div class=mt>אין התראות ב-24 שעות אחרונות</div>';return}
 
+  // Check if area matches user's selected zones/cities
+  const myZoneIds=new Set([...S.selZ,...S.watchZ]);
+  function isMine(a){
+    if(S.selC.has(a)||S.watchC.has(a))return true;
+    return fndZ(a).some(z=>myZoneIds.has(z.id));
+  }
+  function groupHasMine(g){return g.areas.some(a=>isMine(a))}
+
+  // Sort: my zones first, then by time
+  all.sort((a,b)=>{
+    const am=groupHasMine(a)?1:0, bm=groupHasMine(b)?1:0;
+    if(am!==bm)return bm-am;// mine first
+    return b.ts-a.ts;// then by time
+  });
+
   c.innerHTML='';
   all.forEach(g=>{
     const t=g.cat===1?'danger':g.cat===13?'safe':'warning';
-    const el=document.createElement('div');el.className='hi-group'+(g.live?' hi-live':'');
+    const hasMine=groupHasMine(g);
+    const el=document.createElement('div');el.className='hi-group'+(g.live?' hi-live':'')+(hasMine?' hi-mine':'');
+
+    // Put matching areas first in chips, highlight them
+    const myAreas=g.areas.filter(a=>isMine(a));
+    const otherAreas=g.areas.filter(a=>!isMine(a));
+    const sorted=[...myAreas,...otherAreas];
+
     const MAX=5;
-    const visible=g.areas.slice(0,MAX);
-    const hidden=g.areas.slice(MAX);
-    const visChips=visible.map(a=>`<span class="hi-chip">${esc(a)}</span>`).join('');
-    const hidChips=hidden.map(a=>`<span class="hi-chip">${esc(a)}</span>`).join('');
-    // Time display
+    const visible=sorted.slice(0,MAX);
+    const hidden=sorted.slice(MAX);
+    const chipHtml=a=>`<span class="hi-chip${isMine(a)?' hi-chip-mine':''}">${esc(a)}</span>`;
+    const visChips=visible.map(chipHtml).join('');
+    const hidChips=hidden.map(chipHtml).join('');
+
     const time=fT(new Date(g.ts).toISOString());
-    // "ago" badge for live/recent
     const ageMin=Math.round((now-g.ts)/60000);
     const agoBadge=g.live||ageMin<10?`<span class="hi-ago ${t}">לפני ${ageMin<1?'פחות מדקה':ageMin+' דקות'}</span>`:'';
 
