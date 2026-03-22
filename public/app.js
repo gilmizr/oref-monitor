@@ -634,7 +634,7 @@ function proc(al){
   // Add new alerts to buffer — danger always overrides warning
   al.forEach(a=>{
     const cat=parseInt(a.cat)||0;
-    const st=cat===1?'danger':'warning';
+    const st=cat===1?'danger':cat===13?'safe':'warning';
     (a.data||[]).forEach(n=>{
       const existing=S.alertBuffer[n];
       // Only override if: new, or upgrading to danger, or refreshing same level
@@ -722,8 +722,7 @@ function chkU(al){
   if(hit){
     if(S.sound){try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.setValueAtTime(880,c.currentTime);o.frequency.setValueAtTime(660,c.currentTime+.15);o.frequency.setValueAtTime(880,c.currentTime+.3);o.frequency.setValueAtTime(660,c.currentTime+.45);g.gain.setValueAtTime(.4,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+.6);o.start(c.currentTime);o.stop(c.currentTime+.6)}catch{}}
     if('Notification' in window&&Notification.permission==='granted')new Notification('🚨 התראה!',{body:hitCities.join(', '),tag:'oref'});
-    // Shelter only for missiles in MY cities
-    if(minMigun<Infinity)showShelter(minMigun,hitCities.join(' · '));
+    // shelter overlay removed
   }
 }
 
