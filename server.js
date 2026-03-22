@@ -88,21 +88,24 @@ function broadcastToClients(eventData) {
 // ============================================
 async function pollAlerts() {
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-
-    const response = await fetch('https://www.oref.org.il/WarningMessages/alert/alerts.json', {
-      headers: {
-        'Referer': 'https://www.oref.org.il/',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Accept': 'application/json',
-        'Accept-Language': 'he',
-      },
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-
-    const text = await response.text();
+    let text = '';
+    // Try oref.org.il first, fallback to tzevaadom
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 4000);
+      const response = await fetch('https://www.oref.org.il/WarningMessages/alert/alerts.json', {
+        headers: { 'Referer': 'https://www.oref.org.il/', 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      text = await response.text();
+    } catch {
+      // Fallback: tzevaadom API (works from outside Israel)
+      try {
+        const r2 = await fetch('https://api.tzevaadom.co.il/notifications', { headers: { 'Accept': 'application/json' } });
+        text = await r2.text();
+      } catch {}
+    }
     const json = (!text || text.trim() === '') ? '[]' : text;
 
     if (json !== lastAlertJson) {
@@ -167,13 +170,17 @@ const origBroadcast = broadcastToClients;
 // ============================================
 app.get('/api/history', async (req, res) => {
   try {
-    const response = await fetch('https://www.oref.org.il/WarningMessages/alert/History/AlertsHistory.json', {
-      headers: { 'Referer': 'https://www.oref.org.il/', 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-    });
-    const text = await response.text();
     let orefHistory = [];
-    try { orefHistory = JSON.parse(text || '[]'); } catch {}
-    if (!Array.isArray(orefHistory)) orefHistory = [];
+    try {
+      const response = await fetch('https://www.oref.org.il/WarningMessages/alert/History/AlertsHistory.json', {
+        headers: { 'Referer': 'https://www.oref.org.il/', 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+      });
+      const text = await response.text();
+      orefHistory = JSON.parse(text || '[]');
+      if (!Array.isArray(orefHistory)) orefHistory = [];
+    } catch {
+      // oref unreachable (e.g. from outside Israel) — use local history only
+    }
 
     // Merge: local history + oref history, deduplicated, sorted by time desc
     const merged = new Map();
