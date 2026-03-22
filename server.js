@@ -13,7 +13,7 @@ let geocodeCache = {};
 try { geocodeCache = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf8')); } catch {}
 
 function saveGeoCache() {
-  fs.writeFileSync(CACHE_PATH, JSON.stringify(geocodeCache), 'utf8');
+  try { fs.writeFileSync(CACHE_PATH, JSON.stringify(geocodeCache), 'utf8'); } catch {}
 }
 
 // Check if a cache entry has polygon data (v2 format)
